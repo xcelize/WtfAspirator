@@ -1,3 +1,7 @@
+from WtfAspirator.src.Objects.Categories import Categorie
+from WtfAspirator.src.Objects.Film import Film
+from WtfAspirator.src.Objects.Plateforme import Plateforme
+from WtfAspirator.src.Objects.Serie import Serie
 from WtfAspirator.src.Services.VideoService import (
     FilmService,
 )
@@ -33,16 +37,22 @@ def lets_tv():
     print(f'Serie 2 - {len(serie2.categories)}')
 
 def testORM():
+    import logging
+    logging.basicConfig()
+    logging.getLogger('sqlalchemy.engine').setLevel(logging.INFO)
     BaseORM.metadata.create_all(engine)
     session = Session()
-    service = SerieService()
-    serie = service.get_by_id(2)
-    session.add(serie)
-    session.commit()
-
+    serieService = SerieService()
+    for i in range(1000):
+        try:
+            serie = serieService.get_by_id(i)
+            serie.save(session)
+        except Exception as e:
+            print(e)
 
 if __name__ == '__main__':
     testORM()
 
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/
+
 

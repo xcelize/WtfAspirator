@@ -2,9 +2,9 @@ from .Categories import Categorie
 from .Base import Base
 from .Production import Production
 from .baseORM import Session, engine, BaseORM
-from sqlalchemy import Column, String, Integer, Date, Table, ForeignKey
-from sqlalchemy.orm import relationship
-
+from sqlalchemy import Column, String, Integer, Date, Table, ForeignKey, event
+from sqlalchemy.orm import relationship, object_session
+import sqlalchemy.event
 
 movies_categorie_association = Table(
     'film_categories', BaseORM.metadata,
@@ -28,7 +28,7 @@ class Film(Base, BaseORM):
     plot = Column(String)
     vo = Column(String)
     duree = Column(String)
-    categories = relationship("Categorie", secondary=movies_categorie_association)
+    categories = relationship("Categorie", secondary=movies_categorie_association, cascade='all')
     productions = relationship("Production", secondary=movies_production_association)
 
     def __init__(self, json_object):
@@ -68,3 +68,20 @@ class Film(Base, BaseORM):
 
     def __str__(self):
         return f'{self.id_video}, {self.titre}, {self.vo}, {self.duree}, {self.plot}'
+
+    def save(self, session):
+        for k, categorie in enumerate(self.categories):
+            if session.query(Film).filter(Categorie.id_categ == categorie.id_categ).count() > 0:
+                self.categories[k] = session.query(Categorie).get(categorie.id_categ)
+        for k, production in enumerate(self.productions):
+            if session.query(Film).filter(Production.id_production == production.id_production).count() > 0:
+                self.productions[k] = session.query(Production).get(production.id_production)
+        session.add(self)
+        session.commit()
+
+
+@event.listens_for(Film, 'before_insert')
+def my_load_listener(mapper, connection, target):
+    session = object_session(target)
+    target.id_video = 100
+

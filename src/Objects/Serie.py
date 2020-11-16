@@ -1,12 +1,11 @@
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, object_session
 from .Base import Base
 from .Categories import Categorie
 from .Production import Production
 from .Plateforme import Plateforme
 from .Saison import Saison
 from .baseORM import Session, engine, BaseORM
-from sqlalchemy import Column, String, Integer, Date, Table, ForeignKey
-
+from sqlalchemy import Column, String, Integer, Date, Table, ForeignKey, event
 
 series_categorie_association = Table(
     'serie_categories', BaseORM.metadata,
@@ -92,3 +91,18 @@ class Serie(Base, BaseORM):
 
     def __str__(self):
         return f'{self.titre}'
+
+    def save(self, session):
+        for k, categorie in enumerate(self.categories):
+            if session.query(Serie).filter(Categorie.id_categ == categorie.id_categ).count() > 0:
+                self.categories[k] = session.query(Categorie).get(categorie.id_categ)
+        for k, production in enumerate(self.productions):
+            if session.query(Serie).filter(Production.id_production == production.id_production).count() > 0:
+                self.productions[k] = session.query(Production).get(production.id_production)
+        for k, plateforme in enumerate(self.plateformes):
+            if session.query(Serie).filter(Plateforme.id_plateforme == plateforme.id_plateforme).count() > 0:
+                self.plateformes[k] = session.query(Plateforme).get(plateforme.id_plateforme)
+        session.add(self)
+        session.commit()
+
+
