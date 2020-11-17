@@ -1,10 +1,10 @@
-from .Categories import Categorie
-from .Base import Base
-from .Production import Production
-from .baseORM import Session, engine, BaseORM
-from sqlalchemy import Column, String, Integer, Date, Table, ForeignKey, event
+from sqlalchemy import Column, String, Integer, Table, ForeignKey, event
 from sqlalchemy.orm import relationship, object_session
-import sqlalchemy.event
+
+from .Base import Base
+from .Categories import Categorie
+from .Production import Production
+from .baseORM import BaseORM
 
 movies_categorie_association = Table(
     'film_categories', BaseORM.metadata,
@@ -78,10 +78,3 @@ class Film(Base, BaseORM):
                 self.productions[k] = session.query(Production).get(production.id_production)
         session.add(self)
         session.commit()
-
-
-@event.listens_for(Film, 'before_insert')
-def my_load_listener(mapper, connection, target):
-    session = object_session(target)
-    target.id_video = 100
-

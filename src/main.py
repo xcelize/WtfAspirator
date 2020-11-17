@@ -1,58 +1,88 @@
-from WtfAspirator.src.Objects.Categories import Categorie
-from WtfAspirator.src.Objects.Film import Film
-from WtfAspirator.src.Objects.Plateforme import Plateforme
-from WtfAspirator.src.Objects.Serie import Serie
-from WtfAspirator.src.Services.VideoService import (
-    FilmService,
-)
-from WtfAspirator.src.Services.SerieService import (
-    SerieService,
-)
+import sys
+from sqlalchemy.orm import Session
+from WtfAspirator.src.Controllers.FilmController import FilmController
 from WtfAspirator.src.Objects.baseORM import Session, engine, BaseORM
-
-def lets_movies():
-    list_video: [Film] = []
-
-    service = FilmService()
-    film1 = service.get_by_id(2)
-    film2 = service.get_by_id(11)
-
-    print(f'Film 1 - {len(film1.productions)}')
-    print(f'Film 1 - {len(film1.categories)}')
-
-    print(f'Film 2 - {len(film2.productions)}')
-    print(f'Film 2 - {len(film2.categories)}')
+from PyInquirer import style_from_dict, Token, prompt, Separator
+from pprint import pprint
 
 
-def lets_tv():
-    service = SerieService()
-    serie1 = service.get_by_id(1)
-    serie2 = service.get_by_id(2)
+class Console:
 
-    print(f'{serie1}')
-    print(f'Serie 1 - {len(serie1.productions)}')
-    print(f'Serie 1 - {len(serie1.categories)}')
+    style = style_from_dict({
+        Token.Separator: '#cc5454',
+        Token.QuestionMark: '#673ab7 bold',
+        Token.Selected: '#cc5454',  # default
+        Token.Pointer: '#673ab7 bold',
+        Token.Instruction: '',  # default
+        Token.Answer: '#f44336 bold',
+        Token.Question: '',
+    })
+    questions = [
+        {
+            'type': 'list',
+            'message': 'Selectionner une action',
+            'name': "route",
+            'choices': [
+                Separator('On aspire quoi ?'),
+                {
+                    'name': "film"
+                },
+                {
+                    'name': "serie"
+                }
+            ]
+        },
+        {
+            'type': 'list',
+            'message': 'Voulez vous recommencer?',
+            'name': "again",
+            'choices': [
+                {
+                    'name': "oui"
+                },
+                {
+                    'name': "non"
+                }
+            ]
+        },
 
-    print(f'Serie 2 - {len(serie2.productions)}')
-    print(f'Serie 2 - {len(serie2.categories)}')
+    ]
 
-def testORM():
-    import logging
-    logging.basicConfig()
-    logging.getLogger('sqlalchemy.engine').setLevel(logging.INFO)
-    BaseORM.metadata.create_all(engine)
-    session = Session()
-    serieService = SerieService()
-    for i in range(1000):
-        try:
-            serie = serieService.get_by_id(i)
-            serie.save(session)
-        except Exception as e:
-            print(e)
+    def __init__(self, p_session: Session):
+        self.film_controller = FilmController(p_session)
+        self.active = True
+
+    def run(self):
+        while self.active:
+            route = self._choisir_route()
+            if route['route'] == "film":
+                self.film_controller.post()
+            elif route['route'] == "serie":
+                pass
+            self.finish_session()
+
+    def finish_session(self):
+        answer = prompt(self.questions[1], style=self.style)
+        if answer["again"] == "oui":
+            self.active = True
+        self.active = False
+
+    def _choisir_route(self):
+        answers = prompt(self.questions[0], style=self.style)
+        return answers
+
+
+class Scripted:
+    pass
+
 
 if __name__ == '__main__':
-    testORM()
-
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
-
-
+    BaseORM.metadata.create_all(engine)
+    session = Session()
+    sys.argv.append("console")
+    if sys.argv[1] == "console":
+        console = Console(session)
+        console.run()
+    elif sys.argv[1] == "scripted":
+        scripted = Scripted()
+        print("scripted")

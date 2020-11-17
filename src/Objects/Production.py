@@ -1,6 +1,7 @@
+from sqlalchemy import Column, String, Integer
+
 from .Base import Base
-from .baseORM import Session, engine, BaseORM
-from sqlalchemy import Column, String, Integer, Date, Table, ForeignKey
+from .baseORM import BaseORM
 
 
 class Production(Base, BaseORM):
