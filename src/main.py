@@ -1,6 +1,9 @@
+import asyncio
 import sys
-from sqlalchemy.orm import Session
+
+from WtfAspirator.src.AsyncService.ServiceFilmAsync import ServiceFilmAsync
 from WtfAspirator.src.Controllers.FilmController import FilmController
+from WtfAspirator.src.Controllers.ControlerFilmAsync import FilmControllerAsync
 from WtfAspirator.src.Objects.baseORM import Session, engine, BaseORM
 from PyInquirer import style_from_dict, Token, prompt, Separator
 from pprint import pprint
@@ -17,7 +20,11 @@ class Console:
         Token.Answer: '#f44336 bold',
         Token.Question: '',
     })
-    questions = [
+
+    def __init__(self, p_session: Session):
+        self.film_service = ServiceFilmAsync(p_session)
+        self.active = True
+        self.questions = [
         {
             'type': 'list',
             'message': 'Selectionner une action',
@@ -45,18 +52,37 @@ class Console:
                 }
             ]
         },
+        {
+            'type': 'list',
+            'message': 'Nombre de film à aspirer?',
+            'name': "nb_films",
+            'choices': [
+                {
+                    'name': "10"
+                },
+                {
+                    'name': "100"
+                },
+                {
+                    'name': "1000"
+                },
+                {
+                    'name': "10000"
+                },
+                {
+                    'name': str(self.film_service.delta)
+                }
+            ]
+        },
 
     ]
-
-    def __init__(self, p_session: Session):
-        self.film_controller = FilmController(p_session)
-        self.active = True
 
     def run(self):
         while self.active:
             route = self._choisir_route()
             if route['route'] == "film":
-                self.film_controller.post()
+                nb_films = self._choisir_nb_films()
+                self._launch_async_process(self.film_service.run_fetching(int(nb_films)))
             elif route['route'] == "serie":
                 pass
             self.finish_session()
@@ -65,11 +91,22 @@ class Console:
         answer = prompt(self.questions[1], style=self.style)
         if answer["again"] == "oui":
             self.active = True
-        self.active = False
+        else:
+            self.active = False
 
     def _choisir_route(self):
         answers = prompt(self.questions[0], style=self.style)
         return answers
+
+    def _choisir_nb_films(self):
+        answer = prompt(self.questions[2], style=self.style)
+        return int(answer.get('nb_films'))
+
+    def _launch_async_process(self, fn):
+        loop = asyncio.get_event_loop()
+        future = asyncio.ensure_future(fn)
+        loop.run_until_complete(future)
+
 
 
 class Scripted:

@@ -67,7 +67,7 @@ class Film(Base, BaseORM):
         self._assign_nested(json_object)
 
     def __str__(self):
-        return f'{self.id_video}, {self.titre}, {self.vo}, {self.duree}, {self.plot}'
+        return f'id:{self.id_video}, titre:{self.titre}, duree: {self.duree}, plot:{self.plot}'
 
     def save(self, session):
         for k, categorie in enumerate(self.categories):
