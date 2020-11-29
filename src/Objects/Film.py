@@ -107,7 +107,7 @@ class Film(Base, BaseORM):
         '''
         deliveryDataToTable(Categorie, Film, 'id_categ', self.categories, session)
         deliveryDataToTable(Production, Film, 'id_production', self.productions, session)
-        deliveryDataToTable(Acteur, Film, 'id_personne', self.directeurs, session)
+        deliveryDataToTable(Acteur, Film, 'id_personne', self.acteurs, session)
         deliveryDataToTable(Directeur, Film, 'id_personne', self.directeurs, session)
 
         session.add(self)
