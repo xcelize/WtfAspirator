@@ -24,6 +24,16 @@ serie_plateformes_association = Table(
     Column('serie_id', Integer, ForeignKey('series.id_video')),
     Column('plateforme_id', Integer, ForeignKey('plateformes.id_plateforme'))
 )
+serie_acteur_association = Table(
+    'serie_acteurs', BaseORM.metadata,
+    Column('serie_id', Integer, ForeignKey('series.id_video')),
+    Column('acteur_id', Integer, ForeignKey('acteurs.id_personne'))
+)
+serie_equipe_association = Table(
+    'serie_equipe', BaseORM.metadata,
+    Column('serie_id', Integer, ForeignKey('series.id_video')),
+    Column('equipe_id', Integer, ForeignKey('equipe.id_personne'))
+)
 
 
 class Serie(Base, BaseORM):
@@ -40,6 +50,8 @@ class Serie(Base, BaseORM):
     productions = relationship("Production", secondary=serie_productions_association)
     plateformes = relationship("Plateforme", secondary=serie_plateformes_association)
     saisons = relationship("Saison")
+    acteurs = relationship("Acteur", secondary=serie_acteur_association)
+    equipe = relationship("Equipe", secondary=serie_equipe_association)
 
     def __init__(self, json_object):
         super().__init__(json_object)
