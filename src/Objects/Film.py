@@ -1,10 +1,10 @@
-from sqlalchemy import Column, String, Integer, Table, ForeignKey, event
-from sqlalchemy.orm import relationship, object_session
-
-from .Base import Base
 from .Categories import Categorie
+from .Base import Base
 from .Production import Production
-from .baseORM import BaseORM
+from .baseORM import Session, engine, BaseORM
+from sqlalchemy import Column, String, Integer, Date, Table, ForeignKey, event
+from sqlalchemy.orm import relationship, object_session
+import sqlalchemy.event
 
 movies_categorie_association = Table(
     'film_categories', BaseORM.metadata,
@@ -67,8 +67,7 @@ class Film(Base, BaseORM):
         self._assign_nested(json_object)
 
     def __str__(self):
-
-        return f'id:{self.id_video}, titre:{self.titre}, duree: {self.duree}, plot:{self.plot}'
+        return f'{self.id_video}, {self.titre}, {self.vo}, {self.duree}, {self.plot}'
 
     def save(self, session):
         for k, categorie in enumerate(self.categories):
@@ -79,4 +78,10 @@ class Film(Base, BaseORM):
                 self.productions[k] = session.query(Production).get(production.id_production)
         session.add(self)
         session.commit()
+
+
+@event.listens_for(Film, 'before_insert')
+def my_load_listener(mapper, connection, target):
+    session = object_session(target)
+    target.id_video = 100
 

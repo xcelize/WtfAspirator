@@ -10,5 +10,5 @@ class ServiceTMDB:
         self.language: str = "FR"
         self.model: object = None
 
-    def get(self, urls):
-        pass
+    def get_by_id(self, p_id: int):
+        raise Exception("La méthode doit être implementée")
