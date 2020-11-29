@@ -16,3 +16,12 @@ class FilmService(ServiceTMDB):
         else:
             raise Exception("Impossible de trouver un film avec cet ID")
 
+    def get_last_inserted(self):
+        response: Response = self.client.get(self.base_url + "movie/latest?api_key=" + self.api_key + "&language=" + self.language)
+        if response.status_code == 200:
+            video = Film(response.json())
+            return video
+
+    def _get_personne_by_serie(self, p_id_film):
+        pass
+

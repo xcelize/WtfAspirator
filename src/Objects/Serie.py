@@ -1,11 +1,12 @@
-from sqlalchemy.orm import relationship, object_session
+from sqlalchemy import Column, String, Integer, Table, ForeignKey, inspect
+from sqlalchemy.orm import relationship
+
 from .Base import Base
 from .Categories import Categorie
-from .Production import Production
 from .Plateforme import Plateforme
+from .Production import Production
 from .Saison import Saison
-from .baseORM import Session, engine, BaseORM
-from sqlalchemy import Column, String, Integer, Date, Table, ForeignKey, event
+from .baseORM import BaseORM
 
 series_categorie_association = Table(
     'serie_categories', BaseORM.metadata,
@@ -41,7 +42,7 @@ class Serie(Base, BaseORM):
 
     def __init__(self, json_object):
         super().__init__(json_object)
-
+        self.session = inspect(self).session
         self.id_video = 0
         self.titre = ""
         self.date_sortie = ""
