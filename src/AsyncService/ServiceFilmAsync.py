@@ -17,7 +17,7 @@ class ServiceFilmAsync(ServiceTMDB):
         self.p_bar = None
 
     async def _fetch(self, p_id, session):
-        url = self.base_url + "movie/" + str(p_id) + "?api_key=" + self.api_key + "&language=" + self.language
+        url = self.base_url + "movie/" + str(p_id) + "?api_key=" + self.api_key + "&language=" + self.language + "&append_to_response=casts"
         self.p_bar.update()
         async with session.get(url) as reponse:
             if reponse.status == 200:
@@ -49,7 +49,7 @@ class ServiceFilmAsync(ServiceTMDB):
 
     @property
     def max(self):
-        response = requests.get(self.base_url + "movie/latest?api_key=" + self.api_key + "&language=" + self.language)
+        response = requests.get(self.base_url + "movie/latest?api_key=" + self.api_key + "&language=" + self.language + "&append_to_response=casts")
         if response.status_code == 200:
             video = Film(response.json())
             return video.id_video

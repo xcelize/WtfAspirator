@@ -17,3 +17,6 @@ class Base:
                     for obj in json_object[attribut]:
                         nested_object = self.mapping_nested[map_attribut]['model'](obj)
                         self.mapping_nested[map_attribut]['object_attr'].append(nested_object)
+
+    def Pk(self):
+        raise NotImplementedError()

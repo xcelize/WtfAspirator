@@ -43,7 +43,7 @@ class Film(Base, BaseORM):
     categories = relationship("Categorie", secondary=movies_categorie_association, cascade='all')
     productions = relationship("Production", secondary=movies_production_association)
     acteurs = relationship("Acteur", secondary=movies_acteur_association)
-    directeurs = relationship("Equipe", secondary=movies_equipe_association)
+    equipe = relationship("Equipe", secondary=movies_equipe_association)
 
     def __init__(self, json_object):
         super().__init__(json_object)
@@ -96,14 +96,21 @@ class Film(Base, BaseORM):
     def __str__(self):
         return f'{self.id_video}, {self.titre}, {self.vo}, {self.duree}, {self.plot}'
 
+    def Pk(self):
+        return self.id_video
+
     def save(self, session):
-        deliveryDataToTable(Categorie, Film, 'id_categ', self.categories, session)
-        deliveryDataToTable(Production, Film, 'id_production', self.productions, session)
-        deliveryDataToTable(Acteur, Film, 'id_personne', self.acteurs, session)
-        deliveryDataToTable(Equipe, Film, 'id_personne', self.equipe, session)
+        self.deliveryDataToTable(Categorie, Film, Categorie.id_categ, self.categories, session)
+        self.deliveryDataToTable(Production, Film, Production.id_production, self.productions, session)
+        self.deliveryDataToTable(Acteur, Film, Acteur.id_personne, self.acteurs, session)
+        self.deliveryDataToTable(Equipe, Film, Equipe.id_personne, self.equipe, session)
         session.add(self)
         session.commit()
 
+    def deliveryDataToTable(self, table_destination, table_original, pk, nested_elements, session):
+        for k, element in enumerate(nested_elements):
+            if session.query(table_original).filter(pk == element.Pk()).count() > 0:
+                nested_elements[k] = session.query(table_destination).get(element.Pk())
 
 @event.listens_for(Film, 'before_insert')
 def my_load_listener(mapper, connection, target):
@@ -111,8 +118,6 @@ def my_load_listener(mapper, connection, target):
     target.id_video = 100
 
 
-def deliveryDataToTable(table_destination, table_original, pk, nested_elements, session):
-    for k, element in enumerate(nested_elements):
-        if session.query(table_original).filter(table_destination[pk] == element[pk]).count() > 0:
-            nested_elements[k] = session.query(table_destination).get(element[pk])
+
+
 

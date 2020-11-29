@@ -33,3 +33,6 @@ class Acteur(Base, BaseORM):
 
     def __str__(self):
         return f'{self.nom}'
+
+    def Pk(self):
+        return self.id_personne

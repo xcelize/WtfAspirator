@@ -22,3 +22,6 @@ class Categorie(Base, BaseORM):
 
     def __str__(self):
         return f'{self.libelle}'
+
+    def Pk(self):
+        return self.id_categ
