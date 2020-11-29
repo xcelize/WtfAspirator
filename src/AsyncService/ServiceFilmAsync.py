@@ -31,7 +31,7 @@ class ServiceFilmAsync(ServiceTMDB):
     async def run_fetching(self, number: int = None, report_progress: bool = True):
         tasks = []
         if self.delta == 0:
-            return None
+            return
         if number is None:
             number = self.delta
         else:

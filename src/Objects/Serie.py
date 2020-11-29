@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String, Integer, Table, ForeignKey, inspect
+from sqlalchemy import Column, String, Integer, Table, ForeignKey
 from sqlalchemy.orm import relationship
 
 from .Base import Base
@@ -42,7 +42,7 @@ class Serie(Base, BaseORM):
 
     def __init__(self, json_object):
         super().__init__(json_object)
-        self.session = inspect(self).session
+
         self.id_video = 0
         self.titre = ""
         self.date_sortie = ""
