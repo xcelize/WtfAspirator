@@ -1,9 +1,7 @@
-import time
+from sqlalchemy import Column, String, Integer
 
-from sqlalchemy.orm import object_session
 from .Base import Base
-from .baseORM import Session, engine, BaseORM
-from sqlalchemy import Column, String, Integer, Date, Table, ForeignKey, event
+from .baseORM import BaseORM
 
 
 class Categorie(Base, BaseORM):
