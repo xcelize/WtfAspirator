@@ -67,6 +67,7 @@ class Film(Base, BaseORM):
         self._assign_nested(json_object)
 
     def __str__(self):
+
         return f'id:{self.id_video}, titre:{self.titre}, duree: {self.duree}, plot:{self.plot}'
 
     def save(self, session):
@@ -78,3 +79,4 @@ class Film(Base, BaseORM):
                 self.productions[k] = session.query(Production).get(production.id_production)
         session.add(self)
         session.commit()
+
