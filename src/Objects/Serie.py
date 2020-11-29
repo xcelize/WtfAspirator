@@ -3,6 +3,8 @@ from .Base import Base
 from .Categories import Categorie
 from .Production import Production
 from .Plateforme import Plateforme
+from .Acteur import Acteur
+from .Equipe import Equipe
 from .Saison import Saison
 from .baseORM import Session, engine, BaseORM
 from sqlalchemy import Column, String, Integer, Date, Table, ForeignKey, event
@@ -53,6 +55,8 @@ class Serie(Base, BaseORM):
         self.productions: [Production] = []
         self.plateformes: [Plateforme] = []
         self.saisons: [Saison] = []
+        self.acteurs: [Acteur] = []
+        self.equipe: [Equipe] = []
 
         self.mapping_attr = {
             'id_video': 'id',
@@ -84,6 +88,16 @@ class Serie(Base, BaseORM):
                 'json_attr': 'seasons',
                 'object_attr': self.saisons,
                 'model': Saison
+            },
+            'acteurs': {
+                'json_attr': 'cast',
+                'object_attr': self.acteurs,
+                'model': Acteur
+            },
+            'equipe': {
+                'json_attr': 'crew',
+                'object_attr': self.equipe,
+                'model': Equipe
             }
         }
         self._assign_attr(json_object)
@@ -93,16 +107,18 @@ class Serie(Base, BaseORM):
         return f'{self.titre}'
 
     def save(self, session):
-        for k, categorie in enumerate(self.categories):
-            if session.query(Serie).filter(Categorie.id_categ == categorie.id_categ).count() > 0:
-                self.categories[k] = session.query(Categorie).get(categorie.id_categ)
-        for k, production in enumerate(self.productions):
-            if session.query(Serie).filter(Production.id_production == production.id_production).count() > 0:
-                self.productions[k] = session.query(Production).get(production.id_production)
-        for k, plateforme in enumerate(self.plateformes):
-            if session.query(Serie).filter(Plateforme.id_plateforme == plateforme.id_plateforme).count() > 0:
-                self.plateformes[k] = session.query(Plateforme).get(plateforme.id_plateforme)
+        deliveryDataToTable(Categorie, Serie, 'id_categ', self.categories, session)
+        deliveryDataToTable(Production, Serie, 'id_production', self.productions, session)
+        deliveryDataToTable(Plateforme, Serie, 'id_plateforme', self.plateformes, session)
+        deliveryDataToTable(Acteur, Serie, 'id_personne', self.acteurs, session)
+        deliveryDataToTable(Equipe, Serie, 'id_personne', self.equipe, session)
         session.add(self)
         session.commit()
 
+
+
+def deliveryDataToTable(table_destination, table_original, pk, nested_elements, session):
+    for k, element in enumerate(nested_elements):
+        if session.query(table_original).filter(table_destination[pk] == element[pk]).count() > 0:
+            nested_elements[k] = session.query(table_destination).get(element[pk])
 

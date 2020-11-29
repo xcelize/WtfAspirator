@@ -14,5 +14,5 @@ class SerieService(ServiceTMDB):
             serie = Serie(response.json())
             return serie
         else:
-            raise Exception("Impossible de trouver un film avec cet ID")
+            raise Exception("Impossible de trouver une série avec cet ID")
 

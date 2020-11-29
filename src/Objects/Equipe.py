@@ -4,9 +4,9 @@ from sqlalchemy import Column, String, Integer, Float, Date, Table, ForeignKey, 
 from sqlalchemy.orm import object_session
 
 
-class Directeur(Base, BaseORM):
+class Equipe(Base, BaseORM):
 
-    __tablename__ = "directeurs"
+    __tablename__ = "equipe"
     id_personne = Column(Integer, primary_key=True, autoincrement=False)
     nom = Column(String)
     photo_profil = Column(String)
