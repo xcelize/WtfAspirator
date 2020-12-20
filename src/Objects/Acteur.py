@@ -34,5 +34,9 @@ class Acteur(Base, BaseORM):
     def __str__(self):
         return f'{self.nom}'
 
-    def Pk(self):
+    def getId(self):
         return self.id_personne
+
+    @classmethod
+    def Pk(cls):
+        return cls.id_personne

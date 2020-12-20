@@ -1,12 +1,12 @@
-from sqlalchemy import Column, String, Integer, Table, ForeignKey, event
-from sqlalchemy.orm import relationship, object_session
+from sqlalchemy import Column, String, Integer, Table, ForeignKey
+from sqlalchemy.orm import relationship
 
 from .Base import Base
 from .Categories import Categorie
 from .Production import Production
 from .baseORM import BaseORM
 from .Acteur import Acteur
-from .Equipe import Equipe
+from .Directeur import Directeur
 
 movies_categorie_association = Table(
     'film_categories', BaseORM.metadata,
@@ -23,14 +23,14 @@ movies_acteurs_association = Table(
     Column('film_id', Integer, ForeignKey('films.id_video')),
     Column('acteur_id', Integer, ForeignKey('acteurs.id_personne'))
 )
-movies_equipes_association = Table(
-    'film_equipes', BaseORM.metadata,
+movies_directeurs_association = Table(
+    'film_directeurs', BaseORM.metadata,
     Column('film_id', Integer, ForeignKey('films.id_video')),
-    Column('equipe_id', Integer, ForeignKey('equipes.id_personne'))
+    Column('directeur_id', Integer, ForeignKey('directeurs.id_personne'))
 )
 
-class Film(Base, BaseORM):
 
+class Film(Base, BaseORM):
     __tablename__ = "films"
     id_video = Column(Integer, primary_key=True, autoincrement=False)
     titre = Column(String)
@@ -38,11 +38,11 @@ class Film(Base, BaseORM):
     poster = Column(String)
     plot = Column(String)
     vo = Column(String)
-    duree = Column(String)
+    duree = Column(Integer)
     categories = relationship("Categorie", secondary=movies_categorie_association, cascade='all')
     productions = relationship("Production", secondary=movies_production_association)
     acteurs = relationship("Acteur", secondary=movies_acteurs_association)
-    equipes = relationship("Equipe", secondary=movies_equipes_association)
+    directeurs = relationship("Directeur", secondary=movies_directeurs_association)
 
     def __init__(self, json_object):
         super().__init__(json_object)
@@ -52,11 +52,11 @@ class Film(Base, BaseORM):
         self.poster = ""
         self.plot = ""
         self.vo = ""
-        self.duree = ""
+        self.duree = 0
         self.categories: [Categorie] = []
         self.productions: [Production] = []
         self.acteurs: [Acteur] = []
-        self.equipes: [Equipe] = []
+        self.directeurs: [Directeur] = []
         self.mapping_attr = {
             'id_video': 'id',
             'titre': 'title',
@@ -80,28 +80,40 @@ class Film(Base, BaseORM):
         }
         self._assign_attr(json_object)
         # Voir pour faire une méthode générique des "append_to_response"
-        for cast in json_object["casts"]["cast"]:
-            acteur = Acteur(cast)
-            self.acteurs.append(acteur)
-        for equipe in json_object['casts']["crew"]:
-            eq = Equipe(equipe)
-            self.equipes.append(eq)
+        for acteur in json_object["casts"]["cast"]:
+            act = Acteur(acteur)
+            list_id_acteurs = self.list_id(self.acteurs)
+            if act.getId() not in list_id_acteurs:
+                self.acteurs.append(act)
+
+        for directeur in json_object['casts']["crew"]:
+            dir = Directeur(directeur)
+            list_id_directeurs = self.list_id(self.directeurs)
+            if dir.departement == 'Directing' and dir.job == 'Director' and dir.getId() not in list_id_directeurs:
+                self.directeurs.append(dir)
         self._assign_nested(json_object)
 
-
+    def list_id(self, list_data):
+        ids = list()
+        for data in list_data:
+            data_id = data.id_personne
+            ids.append(data_id)
+        return ids
 
     def __str__(self):
         return f'id:{self.id_video}, titre:{self.titre}, duree: {self.duree}, plot:{self.plot}'
 
     def save(self, session):
-        for k, categorie in enumerate(self.categories):
-            if session.query(Film).filter(Categorie.id_categ == categorie.id_categ).count() > 0:
-                self.categories[k] = session.query(Categorie).get(categorie.id_categ)
-        for k, production in enumerate(self.productions):
-            if session.query(Film).filter(Production.id_production == production.id_production).count() > 0:
-                self.productions[k] = session.query(Production).get(production.id_production)
-        '''
-        Todo: Boucle des ateurs
-        '''
+        self.deliveryDataToTable(Film, Categorie, self.categories, session)
+        self.deliveryDataToTable(Film, Production, self.productions, session)
+        self.deliveryDataToTable(Film, Acteur, self.acteurs, session)
+        self.deliveryDataToTable(Film, Directeur, self.directeurs, session)
         session.add(self)
         session.commit()
+
+
+    def deliveryDataToTable(self, table_root, table_destination, list_data, session):
+        for k, data in enumerate(list_data):
+            if session.query(table_root).filter(table_destination.Pk() == data.getId()).count() > 0:
+                list_data[k] = session.query(table_destination).get(data.getId())
+

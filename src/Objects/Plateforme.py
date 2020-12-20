@@ -22,3 +22,10 @@ class Plateforme(Base, BaseORM):
             'logo': 'logo_path'
         }
         self._assign_attr(json_object)
+
+    def getId(self):
+        return self.id_plateforme
+
+    @classmethod
+    def Pk(cls):
+        return cls.id_plateforme

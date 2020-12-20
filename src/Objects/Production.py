@@ -28,3 +28,10 @@ class Production(Base, BaseORM):
 
     def __str__(self):
         return f'{self.id_production} -- {self.nom}'
+
+    def getId(self):
+        return self.id_production
+
+    @classmethod
+    def Pk(cls):
+        return cls.id_production

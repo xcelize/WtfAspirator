@@ -1,12 +1,11 @@
 from .Base import Base
-from .baseORM import Session, engine, BaseORM
-from sqlalchemy import Column, String, Integer, Float, Date, Table, ForeignKey, event
-from sqlalchemy.orm import object_session
+from .baseORM import BaseORM
+from sqlalchemy import Column, String, Integer, Float
 
 
-class Equipe(Base, BaseORM):
+class Directeur(Base, BaseORM):
 
-    __tablename__ = "equipes"
+    __tablename__ = "directeurs"
     id_personne = Column(Integer, primary_key=True, autoincrement=False)
     nom = Column(String)
     photo_profil = Column(String)
@@ -37,5 +36,9 @@ class Equipe(Base, BaseORM):
     def __str__(self):
         return f'{self.nom}'
 
-    def Pk(self):
+    def getId(self):
         return self.id_personne
+
+    @classmethod
+    def Pk(cls):
+        return cls.id_personne
