@@ -79,19 +79,25 @@ class Film(Base, BaseORM):
             },
         }
         self._assign_attr(json_object)
-        # Voir pour faire une méthode générique des "append_to_response"
-        for acteur in json_object["casts"]["cast"]:
-            act = Acteur(acteur)
-            list_id_acteurs = self.list_id(self.acteurs)
-            if act.getId() not in list_id_acteurs:
-                self.acteurs.append(act)
 
-        for directeur in json_object['casts']["crew"]:
-            dir = Directeur(directeur)
-            list_id_directeurs = self.list_id(self.directeurs)
-            if dir.departement == 'Directing' and dir.job == 'Director' and dir.getId() not in list_id_directeurs:
-                self.directeurs.append(dir)
+        self.append_to_list_object(self.acteurs, Acteur, json_object, 'casts', 'cast')
+        self.append_to_list_object(self.directeurs, Directeur, json_object, 'casts', 'crew')
+
         self._assign_nested(json_object)
+
+    def append_to_list_object(self, list_objects, model, json_object, key_json_1, key_json_2):
+        """
+        Pour les listes d'objets Acteur et Directeur.
+        """
+        for json in json_object[key_json_1][key_json_2]:
+             obj = model(json)
+             list_id_obj = self.list_id(list_objects)
+             if obj.getId() not in list_id_obj:
+                # pour directeur il faut vérifier en plus le département et le job.
+                if isinstance(obj, Directeur) and obj.departement == 'Directing' and obj.job == 'Director':
+                        list_objects.append(obj)
+                else:
+                    list_objects.append(obj)
 
     def list_id(self, list_data):
         ids = list()
