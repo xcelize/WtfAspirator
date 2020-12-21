@@ -2,11 +2,10 @@ import asyncio
 import sys
 
 from WtfAspirator.src.AsyncService.ServiceFilmAsync import ServiceFilmAsync
-from WtfAspirator.src.Controllers.FilmController import FilmController
-from WtfAspirator.src.Controllers.ControlerFilmAsync import FilmControllerAsync
+from WtfAspirator.src.AsyncService.ServiceSerieAsync import ServiceSerieAsync
 from WtfAspirator.src.Objects.baseORM import Session, engine, BaseORM
 from PyInquirer import style_from_dict, Token, prompt, Separator
-from pprint import pprint
+
 
 
 class Console:
@@ -23,6 +22,7 @@ class Console:
 
     def __init__(self, p_session: Session):
         self.film_service = ServiceFilmAsync(p_session)
+        self.serie_service = ServiceSerieAsync(p_session)
         self.active = True
         self.questions = [
         {
@@ -54,7 +54,7 @@ class Console:
         },
         {
             'type': 'list',
-            'message': 'Nombre de film à aspirer?',
+            'message': 'Nombre de films à aspirer?',
             'name': "nb_films",
             'choices': [
                 {
@@ -74,6 +74,28 @@ class Console:
                 }
             ]
         },
+        {
+            'type': 'list',
+            'message': 'Nombre de séries à aspirer?',
+            'name': 'nb_series',
+            'choices': [
+                    {
+                        'name': "10"
+                    },
+                    {
+                        'name': "100"
+                    },
+                    {
+                        'name': "1000"
+                    },
+                    {
+                        'name': "10000"
+                    },
+                    {
+                        'name': str(self.serie_service.delta)
+                    }
+            ]
+        }
 
     ]
 
@@ -84,7 +106,8 @@ class Console:
                 nb_films = self._choisir_nb_films()
                 self._launch_async_process(self.film_service.run_fetching(int(nb_films)))
             elif route['route'] == "serie":
-                pass
+                nb_series = self._choisir_nb_series()
+                self._launch_async_process(self.serie_service.run_fetching(int(nb_series)))
             self.finish_session()
 
     def finish_session(self):
@@ -102,11 +125,14 @@ class Console:
         answer = prompt(self.questions[2], style=self.style)
         return int(answer.get('nb_films'))
 
+    def _choisir_nb_series(self):
+        answer = prompt(self.questions[3], style=self.style)
+        return int(answer.get('nb_series'))
+
     def _launch_async_process(self, fn):
         loop = asyncio.get_event_loop()
         future = asyncio.ensure_future(fn)
         loop.run_until_complete(future)
-
 
 
 class Scripted:

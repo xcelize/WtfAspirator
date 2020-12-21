@@ -1,7 +1,5 @@
 from abc import ABCMeta, abstractmethod
 
-from sqlalchemy.orm import Session
-
 
 class AbstractContoller(metaclass=ABCMeta):
 

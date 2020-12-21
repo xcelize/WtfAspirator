@@ -4,7 +4,6 @@ from .AbstractController import AbstractContoller
 from ..AsyncService.ServiceFilmAsync import ServiceFilmAsync
 from ..Objects.Film import Film
 from ..Services.VideoService import FilmService
-from tqdm import tqdm
 from sqlalchemy import text
 
 

@@ -28,3 +28,4 @@ class Saison(Base, BaseORM):
             'num_saison': 'season_number'
         }
         self._assign_attr(json_objects)
+
