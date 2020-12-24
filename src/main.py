@@ -7,9 +7,7 @@ from WtfAspirator.src.Objects.baseORM import Session, engine, BaseORM
 from PyInquirer import style_from_dict, Token, prompt, Separator
 
 
-
 class Console:
-
     style = style_from_dict({
         Token.Separator: '#cc5454',
         Token.QuestionMark: '#673ab7 bold',
@@ -25,65 +23,40 @@ class Console:
         self.serie_service = ServiceSerieAsync(p_session)
         self.active = True
         self.questions = [
-        {
-            'type': 'list',
-            'message': 'Selectionner une action',
-            'name': "route",
-            'choices': [
-                Separator('On aspire quoi ?'),
-                {
-                    'name': "film"
-                },
-                {
-                    'name': "serie"
-                }
-            ]
-        },
-        {
-            'type': 'list',
-            'message': 'Voulez vous recommencer?',
-            'name': "again",
-            'choices': [
-                {
-                    'name': "oui"
-                },
-                {
-                    'name': "non"
-                }
-            ]
-        },
-        {
-            'type': 'list',
-            'message': 'Nombre de films à aspirer?',
-            'name': "nb_films",
-            'choices': [
-                {
-                    'name': "10"
-                },
-                {
-                    'name': "100"
-                },
-                {
-                    'name': "1000"
-                },
-                {
-                    'name': "10000"
-                },
-                {
-                    'name': str(self.film_service.delta)
-                }
-            ]
-        },
-        {
-            'type': 'list',
-            'message': 'Nombre de séries à aspirer?',
-            'name': 'nb_series',
-            'choices': [
+            {
+                'type': 'list',
+                'message': 'Selectionner une action',
+                'name': "route",
+                'choices': [
+                    Separator('On aspire quoi ?'),
                     {
-                        'name': "10"
+                        'name': "film"
                     },
                     {
-                        'name': "100"
+                        'name': "serie"
+                    }
+                ]
+            },
+            {
+                'type': 'list',
+                'message': 'Voulez vous recommencer?',
+                'name': "again",
+                'choices': [
+                    {
+                        'name': "oui"
+                    },
+                    {
+                        'name': "non"
+                    }
+                ]
+            },
+            {
+                'type': 'list',
+                'message': 'Nombre de films à aspirer?',
+                'name': "nb_films",
+                'choices': [
+                    {
+                        'name': "10"
                     },
                     {
                         'name': "1000"
@@ -92,12 +65,37 @@ class Console:
                         'name': "10000"
                     },
                     {
+                        'name': "30000"
+                    },
+                    {
+                        'name': str(self.film_service.delta)
+                    }
+                ]
+            },
+            {
+                'type': 'list',
+                'message': 'Nombre de séries à aspirer?',
+                'name': 'nb_series',
+                'choices': [
+                    {
+                        'name': "10"
+                    },
+                    {
+                        'name': "1000"
+                    },
+                    {
+                        'name': "10000"
+                    },
+                    {
+                        'name': "30000"
+                    },
+                    {
                         'name': str(self.serie_service.delta)
                     }
-            ]
-        }
+                ]
+            }
 
-    ]
+        ]
 
     def run(self):
         while self.active:
@@ -149,5 +147,3 @@ if __name__ == '__main__':
     elif sys.argv[1] == "scripted":
         scripted = Scripted()
         print("scripted")
-
-

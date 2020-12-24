@@ -1,5 +1,5 @@
 from sqlalchemy import Column, String, Integer, Table, ForeignKey
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, load_only, session
 
 from .Base import Base
 from .Categories import Categorie
@@ -29,10 +29,18 @@ movies_directeurs_association = Table(
     Column('directeur_id', Integer, ForeignKey('directeurs.id_personne'))
 )
 
-acteur_id_list_commun = list()
-directeur_id_list_commun = list()
 categ_id_list_commun = list()
+directeur_id_list_commun = list()
+acteur_id_list_commun = list()
 production_id_list_commun = list()
+
+
+if __name__ == 'main':
+    categ_id_list_commun = session.query(Categorie).options(load_only('id_categ'))
+    directeur_id_list_commun = session.query(Directeur).options(load_only('id_personne'))
+    acteur_id_list_commun = session.query(Acteur).options(load_only('id_personne'))
+    production_id_list_commun = session.query(Production).options(load_only('id_production'))
+
 
 class Film(Base, BaseORM):
     __tablename__ = "films"
@@ -138,9 +146,9 @@ class Film(Base, BaseORM):
         session.add(self)
         session.commit()
 
-
     def deliveryDataToTable(self, table_root, table_destination, list_data, session):
         for k, data in enumerate(list_data):
             if session.query(table_root).filter(table_destination.Pk() == data.getId()).count() > 0:
                 list_data[k] = session.query(table_destination).get(data.getId())
+
 
