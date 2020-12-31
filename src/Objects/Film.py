@@ -69,6 +69,7 @@ class Film(Base, BaseORM):
         self.productions: [Production] = []
         self.acteurs: [Acteur] = []
         self.directeurs: [Directeur] = []
+        
         self.mapping_attr = {
             'id_video': 'id',
             'titre': 'title',
@@ -90,6 +91,7 @@ class Film(Base, BaseORM):
                 'model': Production
             },
         }'''
+
         self._assign_attr(json_object)
 
         self.append_to_list_object(self.categories, categ_id_list_commun, Categorie, json_object, 'genres', None)
